@@ -75,6 +75,15 @@ def tinyMazeSearch(problem: SearchProblem) -> List[Directions]:
     w = Directions.WEST
     return  [s, s, w, s, w, w, s, w]
 
+class Node:
+    def __init__(self, state, pred, action, priority=0):
+        self.state = state
+        self.pred = pred
+        self.action = action
+        self.priority = priority
+    def __repr__(self):
+        return "State: {0}, Action: {1}".format(self.state, self.action)
+
 def depthFirstSearch(problem: SearchProblem) -> List[Directions]:
     """
     Search the deepest nodes in the search tree first.
@@ -102,16 +111,16 @@ def depthFirstSearch(problem: SearchProblem) -> List[Directions]:
             for successor, action, _ in problem.getSuccessors(state): # getSuccessors返回(successor, action, stepCost), _占位符
                 newPath = actions + [action]
                 _stack.push((successor, newPath))
-    return actions
+    return []
     util.raiseNotDefined()
 
 def breadthFirstSearch(problem: SearchProblem) -> List[Directions]:
     """Search the shallowest nodes in the search tree first."""
     "*** YOUR CODE HERE ***"
-    visited = set()
+    start_state = problem.getStartState()
+    visited = set([start_state])
     _queue = util.Queue()
-    _queue.push((problem.getStartState(), []))
-
+    _queue.push((start_state, []))
     while not _queue.isEmpty():
         state, actions = _queue.pop()
         if problem.isGoalState(state):
@@ -121,8 +130,29 @@ def breadthFirstSearch(problem: SearchProblem) -> List[Directions]:
                 visited.add(successor)
                 newPath = actions + [action]
                 _queue.push((successor, newPath))
-    return actions
+    return []
     util.raiseNotDefined()
+
+# def breadthFirstSearch(problem):
+#     """Search the shallowest nodes in the search tree first."""
+#     "*** YOUR CODE HERE ***"
+#     closed = set()
+#     fringe = util.Queue()
+#     fringe.push(Node(problem.getStartState(), None, None))
+#     while fringe.isEmpty() is not True:
+#         node = fringe.pop()
+#         if problem.isGoalState(node.state) is True:
+#             actions = list()
+#             while node.action is not None:
+#                 actions.append(node.action)
+#                 node = node.pred
+#             actions.reverse()
+#             return actions
+#         if node.state not in closed:
+#             closed.add(node.state)
+#             for s in problem.getSuccessors(node.state):
+#                 fringe.push(Node(s[0], node, s[1]))
+#     return list()
 
 def uniformCostSearch(problem: SearchProblem) -> List[Directions]:
     """Search the node of least total cost first."""
