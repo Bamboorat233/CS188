@@ -118,7 +118,7 @@ def breadthFirstSearch(problem: SearchProblem) -> List[Directions]:
     """Search the shallowest nodes in the search tree first."""
     "*** YOUR CODE HERE ***"
     start_state = problem.getStartState()
-    visited = set([start_state])
+    visited = set([start_state]) #visited 的添加初始起点时机取决于算法是否允许“更优路径更新”
     _queue = util.Queue()
     _queue.push((start_state, []))
     while not _queue.isEmpty():
@@ -157,6 +157,21 @@ def breadthFirstSearch(problem: SearchProblem) -> List[Directions]:
 def uniformCostSearch(problem: SearchProblem) -> List[Directions]:
     """Search the node of least total cost first."""
     "*** YOUR CODE HERE ***"
+    _Pq = util.PriorityQueue()
+    start_state = problem.getStartState()
+    visited = set()
+    _Pq.push((start_state, [], 0), 0)
+    while not _Pq.isEmpty():
+        state, actions, cost = _Pq.pop()
+        if problem.isGoalState(state):
+            return actions
+        if state not in visited:
+            visited.add(state)
+            for successor, action, stepCost in problem.getSuccessors(state):
+                newPath = actions + [action]
+                newCost = cost + stepCost
+                _Pq.push((successor, newPath, newCost), newCost)
+    return []
     util.raiseNotDefined()
 
 def nullHeuristic(state, problem=None) -> float:

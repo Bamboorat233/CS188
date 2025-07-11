@@ -1,6 +1,7 @@
 from util import Stack
 from util import Queue
 from util import PriorityQueue
+from searchAgents import manhattanHeuristic
 
 # graph = {
 #     'A': ['B', 'C'],
@@ -10,52 +11,6 @@ from util import PriorityQueue
 #     'E': ['F'],
 #     'F': []
 # }
-
-graph = {
-    'A': [('B', 1), ('C', 4)],
-    'B': [('C', 2), ('D', 5)],
-    'C': [('D', 1)],
-    'D': []
-}
-
-class SimpleGraphSearchProblem:
-    def __init__(self, graph, start, goal):
-        self.graph = graph  # 字典：{ state: [(neighbor, cost), ...] }
-        self.start = start
-        self.goal = goal
-
-    def getStartState(self):
-        return self.start
-
-    def isGoalState(self, state):
-        return state == self.goal
-
-    def getSuccessors(self, state):
-        successors = []
-        for neighbor, cost in self.graph.get(state, []):
-            successors.append((neighbor, neighbor, cost))  # (state, action, cost)
-        return successors
-
-
-def uniformCostSearch(problem):
-    frontier = PriorityQueue()
-    frontier.push((problem.getStartState(), [], 0), 0)  # (state, path, cost)
-    explored = set()
-
-    while not frontier.isEmpty():
-        state, path, cost = frontier.pop()
-
-        if problem.isGoalState(state):
-            return path
-
-        if state not in explored:
-            explored.add(state)
-            for successor, action, stepCost in problem.getSuccessors(state):
-                newPath = path + [action]
-                newCost = cost + stepCost
-                frontier.update((successor, newPath, newCost), newCost)
-
-    return []  # No path found
 
 
 # def factorial(n):
@@ -117,6 +72,97 @@ def uniformCostSearch(problem):
 #     return order
 
 
+# graph = {
+#     'A': [('B', 1), ('C', 4)],
+#     'B': [('C', 2), ('D', 5)],
+#     'C': [('D', 1)],
+#     'D': []
+# }
+
+graph = {
+    (0, 0): [((1, 0), 1), ((0, 1), 1)],
+    (1, 0): [((2, 0), 2)],
+    (0, 1): [((2, 0), 1)]
+}
+
+
+class SimpleGraphSearchProblem:
+    def __init__(self, graph, start, goal):
+        self.graph = graph  # 字典：{ state: [(neighbor, cost), ...] }
+        self.start = start
+        self.goal = goal
+
+    def getStartState(self):
+        return self.start
+
+    def isGoalState(self, state):
+        return state == self.goal
+
+    def getSuccessors(self, state):
+        successors = []
+        for neighbor, cost in self.graph.get(state, []):
+            successors.append((neighbor, neighbor, cost))  # (state, action, cost)
+        return successors
+
+
+# def uniformCostSearch(problem):
+#     frontier = PriorityQueue()
+#     frontier.push((problem.getStartState(), [], 0), 0)  # (state, path, cost), priority
+#     explored = set()
+
+#     while not frontier.isEmpty():
+#         state, path, cost = frontier.pop()
+
+#         if problem.isGoalState(state):
+#             return path
+
+#         if state not in explored:
+#             explored.add(state)
+#             for successor, action, stepCost in problem.getSuccessors(state):
+#                 newPath = path + [action]
+#                 newCost = cost + stepCost
+#                 frontier.update((successor, newPath, newCost), newCost)
+
+#     return []  # No path found
+
+def aStarSearch(problem, heuristic=manhattanHeuristic):
+    """
+    A* search algorithm using a given heuristic.
+    """
+    frontier = PriorityQueue()
+    start_state = problem.getStartState()
+    start_cost = 0
+    start_heuristic = heuristic(start_state, problem)
+    
+    # f(n) = g(n) + h(n)
+    frontier.push((start_state, [], 0), start_cost + start_heuristic)
+
+    visited = dict()  # 存储访问过的状态及其最低g(n)
+
+    while not frontier.isEmpty():
+        state, actions, cost = frontier.pop()
+
+        if problem.isGoalState(state):
+            print("total cost:", f)
+            print(start_state)
+            for action in actions:
+                print(action)
+            return actions
+
+        # 如果当前路径更优，才更新
+        if state not in visited or cost < visited[state]:
+            visited[state] = cost
+
+            for successor, action, stepCost in problem.getSuccessors(state):
+                new_cost = cost + stepCost        # g(n)
+                h = heuristic(successor, problem) # h(n)
+                f = new_cost + h                  # f(n) = g(n) + h(n)
+                frontier.push((successor, actions + [action], new_cost), f)
+
+    return []
+
+
+
 # ———— DEMO ————
 if __name__ == "__main__":
     # G = {
@@ -126,6 +172,7 @@ if __name__ == "__main__":
     #     'D': [], 'E': ['F'], 'F': []
     # }
     # print(bfs_graph(G, 'A'))   # ➜ ['A', 'B', 'C', 'D', 'E', 'F']
-    problem = SimpleGraphSearchProblem(graph, 'A', 'D')
-    path = uniformCostSearch(problem)
+    problem = SimpleGraphSearchProblem(graph, (0, 0), (2, 0))
+    # path = uniformCostSearch(problem)
+    path = aStarSearch(problem)
     print("Path found:", path)

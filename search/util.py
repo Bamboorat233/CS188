@@ -180,7 +180,7 @@ class PriorityQueue:
 
     def push(self, item, priority):
         entry = (priority, self.count, item)
-        heapq.heappush(self.heap, entry)
+        heapq.heappush(self.heap, entry) #heapq 模块就是专门设计来在“普通 list 上操作，使它变成堆结构”
         self.count += 1
 
     def pop(self):
@@ -202,7 +202,7 @@ class PriorityQueue:
                 self.heap.append((priority, c, item))
                 heapq.heapify(self.heap)
                 break
-        else:
+        else: #这个 else 是和 for 配套的，意思是如果 for 循环正常结束，则执行 else 中的语句，否则不执行。
             self.push(item, priority)
 
 class PriorityQueueWithFunction(PriorityQueue):
