@@ -104,6 +104,10 @@ class SimpleGraphSearchProblem:
             successors.append((neighbor, neighbor, cost))  # (state, action, cost)
         return successors
 
+def simpleManhattanHeuristic(state, problem):
+    goal = problem.goal
+    return abs(state[0] - goal[0]) + abs(state[1] - goal[1])
+
 
 # def uniformCostSearch(problem):
 #     frontier = PriorityQueue()
@@ -125,10 +129,12 @@ class SimpleGraphSearchProblem:
 
 #     return []  # No path found
 
-def aStarSearch(problem, heuristic=manhattanHeuristic):
+def aStarSearch(problem, heuristic=simpleManhattanHeuristic):
     """
     A* search algorithm using a given heuristic.
     """
+
+
     frontier = PriorityQueue()
     start_state = problem.getStartState()
     start_cost = 0
@@ -138,26 +144,22 @@ def aStarSearch(problem, heuristic=manhattanHeuristic):
     frontier.push((start_state, [], 0), start_cost + start_heuristic)
 
     visited = dict()  # 存储访问过的状态及其最低g(n)
-
+ 
     while not frontier.isEmpty():
         state, actions, cost = frontier.pop()
 
         if problem.isGoalState(state):
-            print("total cost:", f)
-            print(start_state)
-            for action in actions:
-                print(action)
             return actions
 
         # 如果当前路径更优，才更新
-        if state not in visited or cost < visited[state]:
-            visited[state] = cost
+        for successor, action, stepCost in problem.getSuccessors(state):
+            new_cost = cost + stepCost
+            if successor not in visited or new_cost < visited[successor]:
+                visited[successor] = new_cost
+                h = heuristic(successor, problem) * 0.5
+                f = new_cost + h
+                frontier.update((successor, actions + [action], new_cost), f)
 
-            for successor, action, stepCost in problem.getSuccessors(state):
-                new_cost = cost + stepCost        # g(n)
-                h = heuristic(successor, problem) # h(n)
-                f = new_cost + h                  # f(n) = g(n) + h(n)
-                frontier.push((successor, actions + [action], new_cost), f)
 
     return []
 
@@ -176,3 +178,5 @@ if __name__ == "__main__":
     # path = uniformCostSearch(problem)
     path = aStarSearch(problem)
     print("Path found:", path)
+
+

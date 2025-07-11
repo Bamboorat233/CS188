@@ -184,6 +184,29 @@ def nullHeuristic(state, problem=None) -> float:
 def aStarSearch(problem: SearchProblem, heuristic=nullHeuristic) -> List[Directions]:
     """Search the node that has the lowest combined cost and heuristic first."""
     "*** YOUR CODE HERE ***"
+    _Pq = util.PriorityQueue()
+    start_state = problem.getStartState()
+    start_cost = 0
+    start_heuristic = heuristic(start_state, problem)
+
+    _Pq.push((start_state, [], 0), start_cost + start_heuristic)
+    visited = dict()
+    visited[start_state] = start_cost + start_heuristic # A 在第一次被弹出时根本没记到 visited，当它后来又作为 B 的后继出现时就被当成“新结点”再次丢进队列，最后就会在 C 之后被重新弹出并展开。
+    while not _Pq.isEmpty():
+        state, actions, cost = _Pq.pop()
+
+        if problem.isGoalState(state):
+            return actions
+        
+        for successor, action, stepCost in problem.getSuccessors(state):
+            newCost = cost + stepCost
+
+            if successor not in visited or visited[successor] > newCost:
+                visited[successor] = newCost
+                h = heuristic(successor, problem)
+                f = newCost + h
+                _Pq.update((successor, actions + [action], newCost), f)
+    return []
     util.raiseNotDefined()
 
 # Abbreviations
